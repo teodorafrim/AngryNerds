@@ -2,8 +2,8 @@
 SS18-WEB
 Mitglieder:
 
-Teodor Afrim
-Sedat Cakici
+Teodor Afrim<br/>
+Sedat Cakici<br/>
 Joshua Krcmar  
 
 
