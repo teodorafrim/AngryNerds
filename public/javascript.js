@@ -20,7 +20,7 @@ $(document).ready(function () {
 
 
     // add-word PUT Request
-    $('#addWord').on("click", function () {
+    $('#addWord').on('click', function () {
         var $word = $('#typeWord').val();
         array = [$word];
         var json = JSON.stringify(array);
@@ -33,15 +33,19 @@ $(document).ready(function () {
         });
     });
 
-    // TODO: Fill the highscores table with the received data.
-    // Get the highscores when the highscore page is ready.
+    // Get the highscores when the highscore page is ready and update the highscores table.
     const currentPage = window.location.pathname.split('/')[window.location.pathname.split('/').length-1];
     if (currentPage=='highscore.html') {
         $(document).ready(function () {
             $.ajax({
                 type: 'GET',
                 url: 'http://localhost:3000/highscore',
-                dataType: 'json'
+                success: function(data) {
+                    for (var key in data) {
+                        $('#highscoresTable tbody').append(`<tr> <td>${key}</td> <td>${data[key]}</td> </tr>`);
+                    }
+
+                }
             });
         });
     }
