@@ -1,2 +1,38 @@
+* {
+    box-sizing: border-box;
+}
 
+#gameWindow {
+    margin: 10px 10px;
+}
 
+#gameWindow .flex-column {
+    margin: 0 0 0 10px;
+    min-width: 200px;
+}
+
+#gameWindow .flex-column .d-flex {
+    margin: 16.5px 0 0 0;
+}
+
+#drawArea {
+    width: 1024px; 
+    height: 600px; 
+    border: 1px solid #000000;
+    border-radius: 2px;
+}
+
+#chatArea {
+    height:92%;
+    border: 1px solid black;
+    box-shadow: 1px 3px 5px rgba(0,0,0,0.05);
+    border-radius: 2px;
+}
+
+#message {
+    padding: 0 0 0 5px;
+    margin: 0 10px 0 0;
+    width: 320px;
+    border: 1px solid black;
+    border-radius: 2px;
+}

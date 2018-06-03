@@ -34,23 +34,15 @@
     </nav>
 
 
-    <div class="d-flex justify-content-center">
-        <div>
-            <div>
-                <canvas id="myCanvas" width="1024" height="400" style="border:1px solid #000000;">
-                </canvas>
+    <div class="d-flex" id="gameWindow">
+        <canvas id="drawArea" >
+        </canvas>
+        <div class="flex-column">
+            <div id="chatArea"></div>
+            <div class="d-flex justify-content-between">
+                <input id="message" type="text" placeholder="Message" />
+                <button type="submit" class="btn btn-primary btn-sm">Senden</button>
             </div>
-            <div class="form-group">
-                <textarea class="form-control" id="exampleFormControlTextarea1" rows="3"></textarea>
-            </div>
-        </div>
-        <div>
-            <div class="form-group">
-                <textarea class="form-control" id="exampleFormControlTextarea1" rows="3" style="height: 400;"></textarea>
-            </div>
-            <form>
-                <button type="submit" class="btn btn-primary mb-2">-_- Senden -_-</button>
-            </form>
         </div>
     </div>
 
