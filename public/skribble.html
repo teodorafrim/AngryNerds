@@ -21,7 +21,7 @@
                 <li class="nav-item">
                     <a class="nav-link active" href="skribble.html">Skribble</a>
                 </li>
-                <li class="nav-item" id="getHS">
+                <li class="nav-item">
                     <a class="nav-link" href="highscore.html">Highscore</a>
                 </li>
                 <li class="nav-item">
@@ -34,12 +34,14 @@
     </nav>
 
 
-    <div class="d-flex" id="gameWindow">
-        <canvas id="drawArea" >
-        </canvas>
-        <div class="flex-column">
-            <div id="chatArea"></div>
-            <div class="d-flex justify-content-between">
+    <div class="d-flex" id="gameContainer">
+        
+        <div id="drawContainer" >
+        </div>
+    
+        <div class="flex-column" id="sideContainer">
+            <div id="chatBox"></div>
+            <div class="d-flex justify-content-between" id="inputContainer">
                 <input id="message" type="text" placeholder="Message" />
                 <button type="submit" class="btn btn-primary btn-sm">Senden</button>
             </div>
