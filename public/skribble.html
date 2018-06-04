@@ -7,7 +7,8 @@
 </head>
 
 <body>
-    <nav class="navbar navbar-expand-sm navbar-light bg-light">
+
+    <nav class="navbar navbar-expand-sm navbar-light bg-light" id="navigation">
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
             aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
@@ -32,18 +33,41 @@
 
         </div>
     </nav>
-
-
-    <div class="d-flex" id="gameContainer">
-        
-        <div id="drawContainer" >
+    <div id="bigWindow">
+        <div id="loginWindow">
+            <h3>What is your name?</h3>
+            <form>
+                <input type="text" name="name">
+            </form>
         </div>
-    
-        <div class="flex-column" id="sideContainer">
-            <div id="chatBox"></div>
-            <div class="d-flex justify-content-between" id="inputContainer">
-                <input id="message" type="text" placeholder="Message" />
-                <button type="submit" class="btn btn-primary btn-sm">Senden</button>
+
+
+
+        <div class="d-flex" id="gameContainer">
+            <div class="flex-column" id="leftSideContainer">
+                <div class="d-flex" id="tableContainer">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th scope="col">Player</th>
+                                <th scope="col">Score</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+
+                </div>
+            </div>
+            <div id="drawContainer">
+            </div>
+
+            <div class="flex-column" id="rightSideContainer">
+                <div id="chatBox"></div>
+                <div class="d-flex justify-content-between" id="inputContainer">
+                    <input id="message" type="text" placeholder="Message" />
+                    <button type="submit" class="btn btn-primary btn-sm">Senden</button>
+                </div>
             </div>
         </div>
     </div>
@@ -59,5 +83,7 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js"></script>
 
     <script src="javascript.js"></script>
+
+</body>
 
 </html>

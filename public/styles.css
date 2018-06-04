@@ -2,12 +2,53 @@
     box-sizing: border-box;
 }
 
+#bigWindow {
+    position: relative;
+}
+
+#loginWindow {
+    position: absolute;
+    width: 450px;
+    height: 300px;
+    top: 50%;
+    left: 50%;
+    margin-left: -225px;
+    margin-top: -150px;
+    background-color: black;
+}
+
+#loginWindow h3 {
+    position: relative;
+    text-align: center;
+    color: white;
+    top: 30%;
+}
+
+#loginWindow form {
+    position: relative;
+    text-align: center;
+    top: 45%;
+}
+
+#loginWindow input {
+    text-align: center;
+}
+
 #gameContainer {
+    visibility: hidden;
     margin: 10px 10px;
     /* background-color: beige; */
 }
 
-#sideContainer {
+#leftSideContainer {
+    flex: 1;
+    min-width: 200px;
+    margin: 0 10px 0 0;
+    border: 1px solid black;
+    border-radius: 2px;
+}
+
+#rightSideContainer {
     flex: 1;
     min-width: 300px;
     margin: 0 0 0 10px;
@@ -22,6 +63,7 @@
 #drawContainer {
     width: 1024px;
     height: 0;
+    min-width: 400px;
     padding-bottom: 40%;
     border: 1px solid #000000;
     border-radius: 2px;
@@ -41,4 +83,11 @@
     width: 90%;
     border: 1px solid black;
     border-radius: 2px;
+}
+
+@media only screen and (max-width: 720px) {
+    #loginWindow {
+        top: auto;
+        margin-top: 0px;
+    }
 }
