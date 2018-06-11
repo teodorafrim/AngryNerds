@@ -4,6 +4,7 @@
 <head>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css">
     <link rel="stylesheet" href="styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.7.3/socket.io.js"></script>
 </head>
 
 <body>
@@ -33,11 +34,15 @@
 
         </div>
     </nav>
-    <div id="bigWindow">
+    <!-- <div id="bigWindow"> -->
+
         <div id="loginWindow">
-            <h3>What is your name?</h3>
-            <form>
-                <input type="text" name="name">
+            <h3>Put in your username first:</h3>
+            <form id="userForm">
+                <div class = "form-group">
+                    <input class ="form-control" id="username" />
+                    <input type="submit" class ="btn btn-primary" value="Login" />
+                </div>
             </form>
         </div>
 
@@ -46,7 +51,7 @@
         <div class="d-flex" id="gameContainer">
             <div class="flex-column" id="leftSideContainer">
                 <div class="d-flex" id="tableContainer">
-                    <table class="table">
+                    <table class="table" id="users">
                         <thead>
                             <tr>
                                 <th scope="col">Player</th>
@@ -60,16 +65,36 @@
                 </div>
             </div>
             <div id="drawContainer">
+                    <canvas id="drawCanvas"></canvas>
             </div>
 
             <div class="flex-column" id="rightSideContainer">
-                <div id="chatBox"></div>
+                <div id="chatBox">
+                    <div id="chatMessages">
+                            <p>Ted: message</p>
+                            <p>Ted: message</p>
+                            <p>Ted: message</p>
+                            <p>Ted: message</p>
+                            <p>Ted: message</p>
+                            <p>Ted: message</p>
+                            <p>Ted: message</p>
+                            <p>Ted: message</p>
+                            <p>Ted: message</p>
+                            <p>Ted: message</p>
+                            <p>Ted: message</p>
+                            <p>Ted: message</p>
+                            <p>Ted: message</p>
+                            <p>Ted: message</p>
+                            <p>Ted: message</p>
+                            <p>Ted: message</p>
+                    </div>
+                </div>
                 <div class="d-flex justify-content-between" id="inputContainer">
                     <input id="message" type="text" placeholder="Message" />
-                    <button type="submit" class="btn btn-primary btn-sm">Senden</button>
+                    <button type="submit" id="submit" class="btn btn-primary btn-sm">Senden</button>
                 </div>
             </div>
-        </div>
+        <!-- </div> -->
     </div>
 
 
