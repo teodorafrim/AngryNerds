@@ -2,6 +2,13 @@
     box-sizing: border-box;
 }
 
+.hidden {
+    visibility: hidden;
+}
+
+.visible {
+    visibility: visible;
+}
 #bigWindow {
     position: relative;
 }
@@ -14,13 +21,12 @@
     left: 50%;
     margin-left: -225px;
     margin-top: -150px;
-    background-color: black;
 }
 
 #loginWindow h3 {
     position: relative;
     text-align: center;
-    color: white;
+    color: black;
     top: 30%;
 }
 
@@ -30,8 +36,12 @@
     top: 45%;
 }
 
-#loginWindow input {
+#loginWindow form .form-group .form-control {
     text-align: center;
+}
+
+#loginWindow form .form-group .btn {
+    margin-top: 25px;
 }
 
 #gameContainer {
@@ -48,17 +58,6 @@
     border-radius: 2px;
 }
 
-#rightSideContainer {
-    flex: 1;
-    min-width: 300px;
-    margin: 0 0 0 10px;
-    /* background-color: gray; */
-}
-
-#inputContainer{
-    margin: 10px 0 0 0;
-    height: 34px;
-}
 
 #drawContainer {
     width: 1024px;
@@ -67,17 +66,37 @@
     padding-bottom: 40%;
     border: 1px solid #000000;
     border-radius: 2px;
-    
 }
 
-#chatBox {
+#drawContainer canvas {
+    background-color: purple;
+}
+
+#rightSideContainer {
+    min-width: 300px;
+    margin: 0 0 0 10px;
+    /* background-color: gray; */
+}
+
+#rightSideContainer #chatBox {
     height: calc(100% - 44px);
     border: 1px solid black;
     box-shadow: 1px 3px 5px rgba(0,0,0,0.05);
     border-radius: 2px;
 }
 
-#message {
+#rightSideContainer #chatBox #chatMessages {
+    height: 36vw;
+    background-color: blue;
+    overflow: scroll;
+}
+
+#rightSideContainer #inputContainer{
+    margin: 10px 0 0 0;
+    height: 34px;
+}
+
+#rightSideContainer #inputContainer #message {
     padding: 0 0 0 5px;
     margin: 0 10px 0 0;
     width: 90%;
