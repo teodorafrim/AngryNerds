@@ -109,7 +109,6 @@ $userForm.submit(function (e) {
     if ($username.val()) {
         $loginWindow.addClass('hidden');
         $gameContainer.addClass('visible');
-        var socket = io.connect();
         socket.emit('new user', $username.val());
     }
     $username.val(''); //clear it
