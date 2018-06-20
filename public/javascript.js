@@ -123,21 +123,7 @@ socket.on('users', function (data) {
     }
 });
 
-<<<<<<< HEAD
 socket.on('must draw', onMustDraw);
-=======
-//submit a new User + hide the Login Window + show Game Container
-$userForm.submit(function (e) {
-    e.preventDefault();
-    console.log('Submitted'); //test
-    if ($username.val()) {
-        $loginWindow.addClass('hidden');
-        $gameContainer.addClass('visible');
-        socket.emit('new user', $username.val());
-    }
-    $username.val(''); //clear it
-});
->>>>>>> a955f60e28f3dc8a4733dd7a3c0e60c0ce9b3b71
 
 socket.on('notification', onNotification);
 
