@@ -69,12 +69,28 @@ var $userForm = $('#userForm');
 var $users = $('#users tbody');
 var $username = $('#username');
 
+var $canvas = $('#drawCanvas');
+var $notification = $('#notificationWindow p');
+var $notificationWindow = $('#notificationWindow');
+
 //Submit the Message
 $chatInput.click(function (e) {
     e.preventDefault();
     console.log($message.val()); //test
     socket.emit('send message', $message.val());
     $message.val(''); //clear it
+});
+
+//submit a new User + hide the Login Window + show Game Container
+$userForm.submit(function (e) {
+    e.preventDefault();
+    console.log('Submitted'); //test
+    if ($username.val()) {
+        $loginWindow.addClass('hidden');
+        $gameContainer.addClass('visible');
+        socket.emit('new user', $username.val());
+    }
+    $username.val(''); //clear it
 });
 
 //Add the new users to our current user playing list
@@ -89,7 +105,12 @@ socket.on('users', function (data) {
 
 //Add the Message to our Chat Window
 socket.on('new message', function (data) {
-    $chat.append('<p class="well"><strong>' + data.user + '</strong>: ' + data.msg + '</p>');
+    if (Object.keys(data).length === 1) {
+        $chat.append('<p class="well"><strong>' + data.msg + '</p>');
+    }
+    else {
+        $chat.append('<p class="well"><strong>' + data.user + '</strong>: ' + data.msg + '</p>');
+    }
 });
 
 //Add the new users to our current user playing list
@@ -102,21 +123,25 @@ socket.on('users', function (data) {
     }
 });
 
-//submit a new User + hide the Login Window + show Game Container
-$userForm.submit(function (e) {
-    e.preventDefault();
-    console.log('Submitted'); //test
-    if ($username.val()) {
-        $loginWindow.addClass('hidden');
-        $gameContainer.addClass('visible');
-        var socket = io.connect();
-        socket.emit('new user', $username.val());
+socket.on('must draw', onMustDraw);
+
+socket.on('notification', onNotification);
+
+function onNotification(data) {
+    $notificationWindow.show();
+    $notification.text(data.msg);
+    if (data.delay !== 0) {
+        $notificationWindow.fadeOut(data.delay);
     }
-    $username.val(''); //clear it
-});
+}
 
-
-
+function onMustDraw(data) {
+    $notificationWindow.show();
+    $notification.text(`It's your turn to draw: \n ${data}`);
+    $notificationWindow.fadeOut(4000);
+    
+    addDrawingEventListeners();
+}
 
 //Canvas Drawing Logic
 
@@ -135,10 +160,23 @@ var next = {
 
 var drawing = false;
 
-canvas.addEventListener('mousedown', onMouseDown, false);
-canvas.addEventListener('mouseup', onMouseUp, false);
-canvas.addEventListener('mouseout', onMouseUp, false);
-canvas.addEventListener('mousemove', throttle(onMouseMove, 10), false);
+function addDrawingEventListeners() {
+    canvas.addEventListener('mousedown', onMouseDown, false);
+    canvas.addEventListener('mouseup', onMouseUp, false);
+    canvas.addEventListener('mouseout', onMouseUp, false);
+    canvas.addEventListener('mousemove', throttle(onMouseMove, 10), false);
+    console.log('Event listeners added');
+}
+
+function removeDrawingEventListeners() {
+    canvas.removeEventListener('mousedown', onMouseDown, false);
+    canvas.removeEventListener('mouseup', onMouseUp, false);
+    canvas.removeEventListener('mouseout', onMouseUp, false);
+    canvas.removeEventListener('mousemove', throttle(onMouseMove, 10), false);
+    console.log('Event listeners removed');
+}
+
+addDrawingEventListeners();
 
 socket.on('drawing', onDrawingEvent);
 
@@ -170,8 +208,8 @@ function drawLine(x0, y0, x1, y1, color, emit) {
 
 function onMouseDown(e) {
     drawing = true;
-    current.x = e.clientX - canvas.offsetLeft;
-    current.y = e.clientY - canvas.offsetTop;
+    current.x = e.clientX - drawContainer.offsetLeft;
+    current.y = e.clientY - drawContainer.offsetTop;
 }
 
 function onMouseUp(e) {
@@ -183,11 +221,11 @@ function onMouseUp(e) {
 
 function onMouseMove(e) {
     if (!drawing) { return; }
-    next.x = e.clientX - canvas.offsetLeft;
-    next.y = e.clientY - canvas.offsetTop;
+    next.x = e.clientX - drawContainer.offsetLeft;
+    next.y = e.clientY - drawContainer.offsetTop;
     drawLine(current.x, current.y, next.x, next.y, current.color, true);
-    current.x = e.clientX - canvas.offsetLeft;
-    current.y = e.clientY - canvas.offsetTop;
+    current.x = e.clientX - drawContainer.offsetLeft;
+    current.y = e.clientY - drawContainer.offsetTop;
 }
 
 
@@ -205,9 +243,14 @@ function throttle(callback, delay) {
 }
 
 function onDrawingEvent(data) {
+    if (data === 'clear') {
+        canvas.clearRect(0, 0, canvas.width, canvas.height);
+    }
+    else {
     var w = canvas.width;
     var h = canvas.height;
     drawLine(data.x0 * w, data.y0 * h, data.x1 * w, data.y1 * h, data.color);
+    }
 }
 
 
