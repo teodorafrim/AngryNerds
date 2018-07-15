@@ -36,10 +36,7 @@ $(document).ready(function () {
 });
 
 
-// TODO: Update the highscores after every game.
-
 //Skribbl javascript
-
 
 var socket = io.connect();
 
@@ -85,12 +82,13 @@ socket.on('users', function (data) {
 
 //Add the Message to our Chat Window
 socket.on('new message', function (data) {
-    if (Object.keys(data).length === 1) {
+    if (Object.keys(data).length == 1) {
         $chat.append('<p class="well"><strong>' + data.msg + '</p>');
     }
     else {
         $chat.append('<p class="well"><strong>' + data.user + '</strong>: ' + data.msg + '</p>');
     }
+    $chat.scrollTop($chat[0].scrollHeight);
 });
 
 socket.on('must draw', onMustDraw);
@@ -102,7 +100,7 @@ socket.on('finished draw', removeDrawingEventListeners);
 function onNotification(data) {
     $notificationWindow.show();
     $notification.text(data.msg);
-    if (data.delay !== 0) {
+    if (data.delay != 0) {
         $notificationWindow.fadeOut(data.delay);
     }
 }
@@ -198,7 +196,6 @@ function onMouseMove(e) {
     current.y = e.clientY - drawContainer.offsetTop;
 }
 
-
 // limit the number of events per second
 function throttle(callback, delay) {
     var previousCall = new Date().getTime();
@@ -223,7 +220,6 @@ function onDrawingEvent(data) {
     drawLine(data.x0 * w, data.y0 * h, data.x1 * w, data.y1 * h, data.color);
     }
 }
-
 
 function onResize() {
     // Make the canvas fill its parent (will erase it's content)

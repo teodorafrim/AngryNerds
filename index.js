@@ -133,6 +133,7 @@ io.on('connection', function (socket) {
         // If the disconnected user was also logged in (otherwise his ID won't show up in onlineUsers)
         if (index !== -1) {
             onlineUsers.splice(index, 1);
+            io.sockets.emit('new message', { msg: `${disconnectedUser.username} left.` });
 
             if (isRoundRunning == true && onlineUsers.length < 2) {
                 endGame();
@@ -190,12 +191,9 @@ io.on('connection', function (socket) {
         if (isRoundRunning) {
             let index = onlineUsers.findIndex(user => user.socketID === socket.id);
             onlineUsers[index].status = 'guessing';
-            //Show notifications for people joining into a running round which user is currently drawing
-            for (var i = 0; i < onlineUsers.length; i++) {
-                if (onlineUsers[i].status == 'drawing')
-                    var userDrawing = onlineUsers[i].username;
-                socket.emit('notification', { msg: `It's ${userDrawing}'s turn to draw.`, delay: 4000 });
-            }
+            //Notify new users who is currently drawing
+            socket.emit('notification', { msg: `It's ${currentUser.username}'s turn to draw.`, delay: 2500 });
+
         }
 
         if (onlineUsers.length > 1 && isGameRunning == false)
@@ -230,7 +228,8 @@ var isGameRunning = false;
 var isRoundRunning = false;
 var currentWord = undefined;
 var currentUser = undefined;
-var timer = false;
+var timeout;
+var timeWarning;
 var guessedCounter = 0;
 
 function startGame() {
@@ -255,9 +254,8 @@ function startRound() {
             break;
         }
 
-    // If one was found, start actually the round
+    // If one player was found, start actually the round
     if (currentUser !== undefined) {
-        timer = true;
         for (var i = 0; i < onlineUsers.length; i++) {
             if (onlineUsers[i].socketID == currentUser.socketID)
                 onlineUsers[i].status = 'drawing';
@@ -268,13 +266,18 @@ function startRound() {
         chooseRandomWord();
         io.to(currentUser.socketID).emit('must draw', currentWord);
         io.sockets.connected[currentUser.socketID].broadcast
-            .emit('notification', { msg: `It's ${currentUser.username}'s turn to draw.`, delay: 4000 });
+            .emit('notification', { msg: `It's ${currentUser.username}'s turn to draw. You have 60 seconds to guess.`, delay: 2500 });
         console.log("Word to guess: ", currentWord);
         isRoundRunning = true;
-        setTimeout(function () {
-            if (timer == true)
-                endRound();
+        timeout = setTimeout(function () {
+            endRound();
+            io.sockets.emit('new message', { msg: 'Time is up!' });
         }, 60000);
+        var timeCounter = 50;
+        timeWarning = setInterval(function() {
+            io.sockets.emit('new message', { msg: `${timeCounter} seconds remaining.` });
+            timeCounter -= 10;
+        }, 10000);
     }
 
     // End the game if not
@@ -288,32 +291,35 @@ function endGame() {
     isGameRunning = false;
     if (isRoundRunning)
         endRound();
+    // start a new game if there are enough players
     if (onlineUsers.length > 1) {
         io.sockets.emit('notification', { msg: 'Game has ended. Starting a new game ...', delay: 3000 });
-        setTimeout(startGame, 4000);
+        setTimeout(startGame, 3100);
     }
     else if (onlineUsers.length == 1) {
         setTimeout(function () {
             if (onlineUsers.length == 1)
                 io.to(onlineUsers[0].socketID).emit('notification', { msg: 'Waiting for more players ...', delay: 0 });
-        }, 3100);
+        }, 2600);
     }
 
 }
 // Notify the users, reset variables, start a new round.
 // Note: The round is ended when everybody has guessed the word or the drawer has disconnected.
 function endRound() {
+    clearTimeout(timeout);
+    clearInterval(timeWarning);
     //Update the score of the user that drew after everybody guessed the word / after the timer ran out
-    for (var j = 0; j < onlineUsers.length; j++) {
-        if (onlineUsers[j].status == 'drawing' && guessedCounter > 0)
-            onlineUsers[j].score += Math.round((guessedCounter / (onlineUsers.length - 1)) * 10);
-        if (onlineUsers[j].status == 'drawing' && guessedCounter == 0)
-            onlineUsers[j].score = 0;
+    for (var i = 0; i < onlineUsers.length; i++) {
+        if (onlineUsers[i].status == 'drawing' && guessedCounter > 0)
+            onlineUsers[i].score += Math.round((guessedCounter / (onlineUsers.length - 1)) * 10);
+        if (onlineUsers[i].status == 'drawing' && guessedCounter == 0)
+            onlineUsers[i].score = 0;
     }
 
     io.to(currentUser.socketID).emit('finished draw');
     linesHistory = [];
-    io.sockets.emit('notification', { msg: 'Round has ended.', delay: 3000 })
+    io.sockets.emit('notification', { msg: 'Round has ended.', delay: 2500 })
     io.sockets.emit('users', onlineUsers); //update the scores list
     io.sockets.emit('drawing', 'clear');
 
@@ -322,18 +328,15 @@ function endRound() {
     index = onlineUsers.findIndex(user => user.socketID === currentUser.socketID);
     if (index != -1)
         onlineUsers[index].mustDraw = false;
-    
 
     currentUser = undefined;
     currentWord = undefined;
     guessedCounter = 0;
-    //updateHighscores();
-    timer = false;
     isRoundRunning = false;
+    updateHighscores();
     if (isGameRunning)
         setTimeout(startRound, 4000);
 }
-
 
 function updateHighscores() {
     highscores = require('./resources/highscores');
@@ -356,7 +359,6 @@ function updateHighscores() {
     );
 }
 
-
 function checkIfEverybodyGuessed() {
     for (var i = 0; i < onlineUsers.length; i++)
         if (onlineUsers[i].status == 'guessing')
@@ -364,7 +366,6 @@ function checkIfEverybodyGuessed() {
     // If there was not found an user who still has to guess, end the round
     endRound();
 }
-
 
 function chooseRandomWord() {
     index = Math.floor(Math.random() * words.length);

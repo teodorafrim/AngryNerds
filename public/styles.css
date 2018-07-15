@@ -73,7 +73,6 @@ background-color: #f4f2d9;
     border-radius: 2px;
 }
 
-
 #drawContainer {
     position: relative;
     width: 1024px;
@@ -84,7 +83,6 @@ background-color: #f4f2d9;
     border: 1px solid #000000;
     border-radius: 2px;
 }
-
 
 #notificationWindow {
     position: absolute;
