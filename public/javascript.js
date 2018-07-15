@@ -2,34 +2,18 @@ $(document).ready(function () {
 
     //AJAX Requests
 
-    // TODO: Get the words when is somebody's turn to draw.
-    //For now, everytime we click on send word, it gets the data (-> placeholder)
-    $('#addWord').click(function () {
-        $.ajax({
-            type: 'GET',
-            url: 'http://localhost:3000/words',
-            dataType: 'json'
-            /*Window alert success
-            success: function (data){
-                $.each(data,function (index,element) {
-                   window.alert(element);
-                });
-            }*/
-        });
-    });
-
-
     // add-word PUT Request
-    $('#addWord').on('click', function () {
-        var $word = $('#typeWord').val();
-        array = [$word];
+    $('#wordForm').on('submit', function () {
+        var $word = $('#wordText').val();
+        array = $word.split(/,\s*/);
         var json = JSON.stringify(array);
-        console.log(json);
         $.ajax({
             type: 'PUT', //Auf Meilenstein 2 Anforderungen Zusammenfassung steht "POST"??
             contentType: "application/json; charset=utf-8",
             url: 'http://localhost:3000/add-word',
-            data: json
+            data: json,
+            success: function(result,status,xhr) {window.alert(JSON.parse(xhr.responseText).message);},
+            error: function(xhr,status,error) { window.alert(JSON.parse(xhr.responseText).message);}
         });
     });
 
@@ -59,7 +43,7 @@ $(document).ready(function () {
 
 var socket = io.connect();
 
-var $chatInput = $('#submit');
+var $chatInput = $('#chatForm');
 var $message = $('#message');
 var $chat = $('#chatMessages');
 var $gameContainer = $('#gameContainer');
@@ -74,9 +58,8 @@ var $notification = $('#notificationWindow p');
 var $notificationWindow = $('#notificationWindow');
 
 //Submit the Message
-$chatInput.click(function (e) {
+$chatInput.submit(function (e) {
     e.preventDefault();
-    console.log($message.val()); //test
     socket.emit('send message', $message.val());
     $message.val(''); //clear it
 });
@@ -84,7 +67,6 @@ $chatInput.click(function (e) {
 //submit a new User + hide the Login Window + show Game Container
 $userForm.submit(function (e) {
     e.preventDefault();
-    console.log('Submitted'); //test
     if ($username.val()) {
         $loginWindow.addClass('hidden');
         $gameContainer.addClass('visible');
@@ -95,10 +77,8 @@ $userForm.submit(function (e) {
 
 //Add the new users to our current user playing list
 socket.on('users', function (data) {
-    console.log(data.length);
     $users.empty();
     for (i = 0; i < data.length; i++) {
-        console.log(data.length);
         $users.append(`<tr> <td>${data[i].username}</td> <td>${data[i].score}</td> </tr>`);
     }
 });
@@ -113,19 +93,11 @@ socket.on('new message', function (data) {
     }
 });
 
-//Add the new users to our current user playing list
-socket.on('users', function (data) {
-    console.log(data.length);
-    $users.empty();
-    for (i = 0; i < data.length; i++) {
-        console.log(data.length);
-        $users.append(`<tr> <td>${data[i].username}</td> <td>${data[i].score}</td> </tr>`);
-    }
-});
-
 socket.on('must draw', onMustDraw);
 
 socket.on('notification', onNotification);
+
+socket.on('finished draw', removeDrawingEventListeners);
 
 function onNotification(data) {
     $notificationWindow.show();
@@ -175,8 +147,6 @@ function removeDrawingEventListeners() {
     canvas.removeEventListener('mousemove', throttle(onMouseMove, 10), false);
     console.log('Event listeners removed');
 }
-
-addDrawingEventListeners();
 
 socket.on('drawing', onDrawingEvent);
 
@@ -243,8 +213,9 @@ function throttle(callback, delay) {
 }
 
 function onDrawingEvent(data) {
-    if (data === 'clear') {
-        canvas.clearRect(0, 0, canvas.width, canvas.height);
+    if (data == 'clear') {
+        console.log(canvas.nodeName, canvas.width, canvas.height);
+        context.clearRect(0, 0, canvas.width, canvas.height);
     }
     else {
     var w = canvas.width;

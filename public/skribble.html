@@ -27,7 +27,7 @@
                     <a class="nav-link" href="highscore.html">Highscore</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="einreichen.html">Wort einreichen</a>
+                    <a class="nav-link" href="addword.html">Add Words</a>
                 </li>
 
             </ul>
@@ -37,7 +37,7 @@
     <!-- <div id="bigWindow"> -->
 
         <div id="loginWindow">
-            <h3>Put in your username first:</h3>
+            <h3>Choose an username:</h3>
             <form id="userForm">
                 <div class = "form-group">
                     <input class ="form-control" id="username" />
@@ -74,32 +74,27 @@
             <div class="flex-column" id="rightSideContainer">
                 <div id="chatBox">
                     <div id="chatMessages">
-                            <p>Ted: message</p>
-                            <p>Ted: message</p>
-                            <p>Ted: message</p>
-                            <p>Ted: message</p>
-                            <p>Ted: message</p>
-                            <p>Ted: message</p>
-                            <p>Ted: message</p>
-                            <p>Ted: message</p>
-                            <p>Ted: message</p>
-                            <p>Ted: message</p>
-                            <p>Ted: message</p>
-                            <p>Ted: message</p>
-                            <p>Ted: message</p>
-                            <p>Ted: message</p>
-                            <p>Ted: message</p>
-                            <p>Ted: message</p>
                     </div>
                 </div>
-                <div class="d-flex justify-content-between" id="inputContainer">
-                    <input id="message" type="text" placeholder="Message" />
-                    <button type="submit" id="submit" class="btn btn-primary btn-sm">Senden</button>
-                </div>
+                <form id="chatForm">
+                    <div class="d-flex justify-content-between" id="inputContainer">
+                        <input id="message" type="text" placeholder="Message" />
+                        <input type="submit" id="submit" class="btn btn-primary btn-sm" value="Senden"/>
+                    </div>
+                </form>
             </div>
         <!-- </div> -->
     </div>
 
+    <footer>
+        <div class="footer-bottom">
+            <div class="text-center">
+                <div class="copyright">
+                    © 2018, AngryNerds
+                </div>
+            </div>
+        </div>
+    </footer>
 
     <!-- jQuery library -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>

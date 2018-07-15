@@ -26,7 +26,7 @@
                     <a class="nav-link" href="highscore.html">Highscore</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link active" href="einreichen.html">Wort einreichen</a>
+                    <a class="nav-link active" href="addword.html">Add Words</a>
                 </li>
 
             </ul>
@@ -34,13 +34,28 @@
         </div>
     </nav>
 
-    <h3 class="text-center" id="indexID1">Wort einreichen</h3>
-    <div class="input-group mb-3">
-        <div class="input-group-prepend">
-            <button class="btn btn-outline-secondary" id="addWord" type="button">Senden</button>
-        </div>
-        <input type="text" class="form-control" placeholder="" id="typeWord" aria-label="" aria-describedby="basic-addon1">
+   
+
+    <div id="wordWindow">
+        <h3 class="text-center" id="wordHeader">Add your desired word/s to the database:</h3>
+        <form id="wordForm">
+            <div  id="wordContainer">
+                <input type="text" id="wordText" placeholder="You can use ' , ' separator for multiple words add"/>
+                <input type="submit" id="wordSubmit" class="btn btn-primary btn-sm" value="Submit"/>
+            </div>
+        </form>
     </div>
+
+
+    <footer>
+        <div class="footer-bottom">
+            <div class="text-center">
+                <div class="copyright">
+                    © 2018, AngryNerds
+                </div>
+            </div>
+        </div>
+    </footer>
 
 
     <!-- jQuery library -->

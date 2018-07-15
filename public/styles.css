@@ -10,8 +10,23 @@
     display: initial;
 }
 
+body {
+background-color: #f4f2d9;
+}
+
 #bigWindow {
     position: relative;
+}
+
+#homeDescription {
+    margin: 20px 10px 20px 10px;
+}
+
+#homeDescription h1 {
+    margin-left: 10px;
+}
+#homeDescription p {
+    margin: 15px;
 }
 
 #loginWindow {
@@ -48,7 +63,6 @@
 #gameContainer {
     visibility: hidden;
     margin: 10px 10px;
-    /* background-color: beige; */
 }
 
 #leftSideContainer {
@@ -71,12 +85,10 @@
     border-radius: 2px;
 }
 
-#drawCanvas {
-    background-color: purple; 
-}
 
 #notificationWindow {
     position: absolute;
+    display: none;
     width: 300px;
     height: 200px;
     left: 50%;
@@ -90,6 +102,7 @@
  }
 
  #notificationWindow p {
+     padding: 5px;
      position: relative;
      top: 43%;
      text-align: center;
@@ -100,7 +113,6 @@
 #rightSideContainer {
     min-width: 300px;
     margin: 0 0 0 10px;
-    /* background-color: gray; */
 }
 
 #chatBox {
@@ -112,9 +124,14 @@
 
 #chatMessages {
     height: 36vw;
+    max-width: 300px;
     min-height: 400px;
-    background-color: blue;
     overflow: scroll;
+}
+
+#chatMessages p {
+    word-break: break-all;
+    padding: 3px;
 }
 
 #inputContainer {
@@ -128,6 +145,37 @@
     width: 90%;
     border: 1px solid black;
     border-radius: 2px;
+}
+
+#wordHeader{
+    margin-top: 20px;
+}
+
+#wordContainer{
+    margin-top: 50px;
+    text-align: center;
+}
+
+#wordText{
+    width: 40%;
+    text-align: center;
+}
+
+footer {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    padding: 1rem;
+    background-color: #efefef;
+    text-align: center;
+  }
+
+.copyright {
+    color: black;
+    line-height: 30px;
+    min-height: 30px;
+    padding: 7px 0;
 }
 
 @media only screen and (max-width: 720px) {

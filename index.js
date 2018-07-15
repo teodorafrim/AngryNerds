@@ -12,7 +12,7 @@ app.use(bodyParser.json());
 app.use(express.static('public'));
 
 const words = require('./resources/words');
-const highscores = require('./resources/highscores');
+var highscores = require('./resources/highscores');
 
 app.use(function (err, req, res, next) {
     if (err.type === 'entity.parse.failed') {
@@ -46,7 +46,6 @@ app.post('/highscore', (req, res) => {
     const json = JSON.stringify(highscores);
     fs.writeFile("./resources/highscores.json", json, (err) => {
         if (err) throw err;
-        console.log('complete');
     }
     );
     res.status(200).json({ message: 'Data has been successfully added' });
@@ -64,34 +63,51 @@ app.put('/add-word', (req, res) => {
         return;
     }
 
+    var addedWords = [];
+    var badWords = [];
+
+
     for (let newWord in wordArray) {
         // Check if data is in String format
-        if (typeof wordArray[newWord] !== 'string') {
-            res.status(400).json({ message: 'Data in array must be Strings' });
-            return;
+        if (!isNaN(wordArray[newWord])) {
+            console.log(wordArray[newWord] + 'is an invalid input');
+            badWords.push(wordArray[newWord]);
         }
-
-        let isDuplicate = false;
-
-        // Check if word already exists
-        for (let existingWord in words) {
-            if (words[existingWord] === wordArray[newWord]) isDuplicate = true;
-        }
-
-        // If not a duplicate, add it to the array
-        if (isDuplicate) console.log(wordArray[newWord] + ' is a duplicate');
         else {
-            words.push(wordArray[newWord]);
-            const json = JSON.stringify(words);
-            fs.writeFile("./resources/words.json", json, (err) => {
-                if (err) throw err;
-                console.log('complete');
+
+            var isDuplicate = false;
+
+            // Check if word already exists
+            for (let existingWord in words) {
+                if (words[existingWord] === wordArray[newWord]) isDuplicate = true;
             }
-            );
+
+            // If not a duplicate, add it to the array
+            if (isDuplicate) {
+                console.log(wordArray[newWord] + ' is a duplicate');
+                badWords.push(wordArray[newWord]);
+            }
+            else {
+
+                words.push(wordArray[newWord]);
+                addedWords.push(wordArray[newWord]);
+                const json = JSON.stringify(words);
+                fs.writeFile("./resources/words.json", json, (err) => {
+                    if (err) throw err;
+                }
+                );
+            }
         }
     }
 
-    res.status(200).json({ message: 'Data has been successfully added' })
+    if (badWords.length > 0) {
+        if (addedWords.length > 0)
+            res.status(400).json({ message: `Duplicate/Invalid inputs found: "${badWords}".\n"${addedWords}" successfully added.` });
+        else
+            res.status(400).json({ message: `Duplicate/Invalid inputs found: "${badWords}".` });
+    }
+    else
+        res.status(200).json({ message: `"${addedWords}" successfully added.` })
 });
 
 // Socket setup
@@ -113,19 +129,27 @@ io.on('connection', function (socket) {
     //Disconnect
     socket.on('disconnect', function (data) {
         index = onlineUsers.findIndex(user => user.socketID === socket.id);
+        disconnectedUser = onlineUsers[index];
         // If the disconnected user was also logged in (otherwise his ID won't show up in onlineUsers)
         if (index !== -1) {
-            // End the round when the player to draw disconnects
-            if (onlineUsers[index].socketID === currentUser.socketID) {
-                endRound();
-            }
-            else {
-                checkIfEverybodyGuessed();
-            }
             onlineUsers.splice(index, 1);
-        }
-        if (onlineUsers.length < 2) {
-            endGame();
+
+            if (isRoundRunning == true && onlineUsers.length < 2) {
+                endGame();
+            }
+
+            else {
+                // End the round when the player to draw disconnects
+                if (currentUser != undefined) {
+                    if (disconnectedUser.socketID === currentUser.socketID) {
+                        endRound();
+                    }
+
+                    else if (isRoundRunning) {
+                        checkIfEverybodyGuessed();
+                    }
+                }
+            }
         }
         console.log('Disconnected: %s sockets connected', io.engine.clientsCount);
         socket.broadcast.emit('users', onlineUsers);
@@ -133,7 +157,6 @@ io.on('connection', function (socket) {
 
     //Send Message
     socket.on('send message', function (data) {
-        console.log(data, socket.username);
         let index = onlineUsers.findIndex(user => user.socketID === socket.id);
         let username = onlineUsers[index].username;
 
@@ -142,7 +165,8 @@ io.on('connection', function (socket) {
             // If the player has guessed the word
             if (isRoundRunning && data === currentWord) {
                 onlineUsers[index].status = 'guessed';
-                onlineUsers[index].score += 1;
+                onlineUsers[index].score += 10;
+                guessedCounter += 1; //Increment the counter if a user guessed the current word
                 io.to(socket.id).emit('notification', { msg: 'You have guessed the word!', delay: 2500 });
                 io.sockets.emit('new message', { msg: `${username} has guessed the word!` });
                 io.sockets.emit('users', onlineUsers);
@@ -166,6 +190,12 @@ io.on('connection', function (socket) {
         if (isRoundRunning) {
             let index = onlineUsers.findIndex(user => user.socketID === socket.id);
             onlineUsers[index].status = 'guessing';
+            //Show notifications for people joining into a running round which user is currently drawing
+            for (var i = 0; i < onlineUsers.length; i++) {
+                if (onlineUsers[i].status == 'drawing')
+                    var userDrawing = onlineUsers[i].username;
+                socket.emit('notification', { msg: `It's ${userDrawing}'s turn to draw.`, delay: 4000 });
+            }
         }
 
         if (onlineUsers.length > 1 && isGameRunning == false)
@@ -174,6 +204,7 @@ io.on('connection', function (socket) {
         if (onlineUsers.length == 1) {
             socket.emit('notification', { msg: 'Waiting for more players ...', delay: 0 });
         }
+
         io.sockets.emit('users', onlineUsers);
 
     });
@@ -199,6 +230,8 @@ var isGameRunning = false;
 var isRoundRunning = false;
 var currentWord = undefined;
 var currentUser = undefined;
+var timer = false;
+var guessedCounter = 0;
 
 function startGame() {
     console.log('Game started');
@@ -218,13 +251,13 @@ function startRound() {
     // Check if there are still players who have to draw
     for (var i = 0; i < onlineUsers.length; i++)
         if (onlineUsers[i].mustDraw) {
-            console.log(onlineUsers[i].socketID);
             currentUser = onlineUsers[i];
             break;
         }
 
     // If one was found, start actually the round
     if (currentUser !== undefined) {
+        timer = true;
         for (var i = 0; i < onlineUsers.length; i++) {
             if (onlineUsers[i].socketID == currentUser.socketID)
                 onlineUsers[i].status = 'drawing';
@@ -236,17 +269,23 @@ function startRound() {
         io.to(currentUser.socketID).emit('must draw', currentWord);
         io.sockets.connected[currentUser.socketID].broadcast
             .emit('notification', { msg: `It's ${currentUser.username}'s turn to draw.`, delay: 4000 });
-        console.log(currentWord);
+        console.log("Word to guess: ", currentWord);
         isRoundRunning = true;
+        setTimeout(function () {
+            if (timer == true)
+                endRound();
+        }, 60000);
     }
 
     // End the game if not
     else
         endGame();
+
 }
 
 // End the game and start a new one if there are enough players
 function endGame() {
+    isGameRunning = false;
     if (isRoundRunning)
         endRound();
     if (onlineUsers.length > 1) {
@@ -254,29 +293,69 @@ function endGame() {
         setTimeout(startGame, 4000);
     }
     else if (onlineUsers.length == 1) {
-        io.to(onlineUsers[0].socketID).emit('notification', { msg: 'Waiting for more players ...', delay: 0 });
+        setTimeout(function () {
+            if (onlineUsers.length == 1)
+                io.to(onlineUsers[0].socketID).emit('notification', { msg: 'Waiting for more players ...', delay: 0 });
+        }, 3100);
     }
 
 }
 // Notify the users, reset variables, start a new round.
 // Note: The round is ended when everybody has guessed the word or the drawer has disconnected.
 function endRound() {
+    //Update the score of the user that drew after everybody guessed the word / after the timer ran out
+    for (var j = 0; j < onlineUsers.length; j++) {
+        if (onlineUsers[j].status == 'drawing' && guessedCounter > 0)
+            onlineUsers[j].score += Math.round((guessedCounter / (onlineUsers.length - 1)) * 10);
+        if (onlineUsers[j].status == 'drawing' && guessedCounter == 0)
+            onlineUsers[j].score = 0;
+    }
+
+    io.to(currentUser.socketID).emit('finished draw');
+    linesHistory = [];
     io.sockets.emit('notification', { msg: 'Round has ended.', delay: 3000 })
     io.sockets.emit('users', onlineUsers); //update the scores list
     io.sockets.emit('drawing', 'clear');
+
     for (var i = 0; i < onlineUsers.length; i++)
         onlineUsers[i].status = 'idle';
-
     index = onlineUsers.findIndex(user => user.socketID === currentUser.socketID);
     if (index != -1)
         onlineUsers[index].mustDraw = false;
-    linesHistory = [];
+    
+
     currentUser = undefined;
     currentWord = undefined;
+    guessedCounter = 0;
+    //updateHighscores();
+    timer = false;
     isRoundRunning = false;
-    //TODO: Update highscores
-    setTimeout(startRound, 4000);
+    if (isGameRunning)
+        setTimeout(startRound, 4000);
 }
+
+
+function updateHighscores() {
+    highscores = require('./resources/highscores');
+    for (var i = 0; i < onlineUsers.length; i++) {
+        newUser = onlineUsers[i].username;
+        newScore = onlineUsers[i].score;
+        for (let name in highscores) {
+            if (name == newUser) {
+                if (newScore > highscores[name])
+                    highscores[name] = newScore;
+            }
+            else
+                highscores[newUser] = newScore;
+        }
+    }
+    const json = JSON.stringify(highscores);
+    fs.writeFile("./resources/highscores.json", json, (err) => {
+        if (err) throw err;
+    }
+    );
+}
+
 
 function checkIfEverybodyGuessed() {
     for (var i = 0; i < onlineUsers.length; i++)
@@ -291,4 +370,3 @@ function chooseRandomWord() {
     index = Math.floor(Math.random() * words.length);
     currentWord = words[index];
 }
-
